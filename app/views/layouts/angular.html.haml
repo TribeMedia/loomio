@@ -9,7 +9,7 @@
     = stylesheet_link_tag lineman_css_path
   %body{'ng-keydown' => 'keyDown($event)'}
     %navbar
-    %ng_viewport{'ng-if' => '!pageError'}
+    %ng-outlet{'ng-if' => '!pageError'}
     %error_page{'ng-if' => 'pageError', 'error' => 'pageError'}
 
     #turn-off-angular{'aria-hidden' => 'true'}
@@ -28,5 +28,5 @@
     = javascript_include_tag lineman_vendorjs_path
     = javascript_include_tag lineman_appjs_path
 
-
-    %script{src: "#{ENV['FAYE_URL']}/client.js", type: 'text/javascript'}
+    - if ENV['FAYE_URL']
+      %script{src: "#{ENV['FAYE_URL']}/client.js", type: 'text/javascript'}

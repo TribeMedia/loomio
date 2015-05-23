@@ -5,9 +5,6 @@ class User < ActiveRecord::Base
   require 'net/http'
   require 'digest/md5'
 
-  validates_inclusion_of :dashboard_sort,   in: %w[sort_by_group sort_by_date]
-  validates_inclusion_of :dashboard_filter, in: %w[show_all show_unread show_proposals]
-
   AVATAR_KINDS = %w[initials uploaded gravatar]
   LARGE_IMAGE = 170
   MED_LARGE_IMAGE = 70
@@ -107,10 +104,10 @@ class User < ActiveRecord::Base
           class_name: 'UserDeactivationResponse',
           dependent: :destroy
 
+  before_validation :generate_username
   before_save :set_avatar_initials,
               :ensure_unsubscribe_token,
-              :ensure_email_api_key,
-              :generate_username
+              :ensure_email_api_key
 
   before_create :set_default_avatar_kind
 
@@ -330,23 +327,7 @@ class User < ActiveRecord::Base
   end
 
   def generate_username
-    return if name.blank? or username.present?
-
-    if name.include? '@'
-      #email used in place of name
-      email_str = email.split("@").first
-      new_username = email_str.parameterize.gsub(/[^a-z0-9]/, "")
-    else
-      new_username = name.parameterize.gsub(/[^a-z0-9]/, "")
-    end
-    username_tmp = new_username.dup.slice(0,18)
-    num = 1
-    while(User.where("username = ?", username_tmp).count > 0)
-      break if username == username_tmp
-      username_tmp = "#{new_username}#{num}"
-      num+=1
-    end
-    self.username = username_tmp
+    self.username ||= UsernameGenerator.new(self).generate
   end
 
   def in_same_group_as?(other_user)

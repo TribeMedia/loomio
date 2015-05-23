@@ -7,6 +7,7 @@ class DiscussionsController < GroupBaseController
   authorize_resource :except => [:new, :create, :index, :add_comment]
 
   after_filter :mark_as_read, only: :show
+  after_filter :track_visit, only: :show
 
   rescue_from ActiveRecord::RecordNotFound do
     render 'application/display_error', locals: { message: t('error.not_found') }
@@ -54,15 +55,18 @@ class DiscussionsController < GroupBaseController
     redirect_to @discussion.group
   end
 
+  # where is this used?
   def index
+    raise "Is this even used?"
     if params[:group_id].present?
       @group = Group.find(params[:group_id])
       if cannot? :show, @group
         head 401
       else
         @no_discussions_exist = (@group.discussions.count == 0)
-        @discussions = GroupDiscussionsViewer.
-                       for(group: @group, user: current_user).
+        groups = VisibleGroupsQuery.expand(@group)
+        @discussions = Queries::VisibleDiscussions.
+                       new(user: current_user, groups: groups).
                        without_open_motions.
                        order_by_latest_comment.
                        page(params[:page]).per(10)
@@ -71,7 +75,7 @@ class DiscussionsController < GroupBaseController
       authenticate_user!
       @no_discussions_exist = (current_user.discussions.count == 0)
       @discussions = Queries::VisibleDiscussions.
-                     new(user: current_user).
+                     new(user: current_user, groups: current_user.groups).
                      without_open_motions.
                      order_by_latest_comment.
                      page(params[:page]).per(10)
@@ -178,6 +182,16 @@ class DiscussionsController < GroupBaseController
     @version = PaperTrail::Version.find(params[:version_id])
     @version.reify.save!
     redirect_to @version.reify()
+  end
+
+  def print
+    @discussion = Discussion.find_by_key! params[:id]
+    @group = @discussion.group
+    if @discussion.motions.present?
+      @motions = @discussion.motions.sort_by {|m| m.created_at }
+    end
+    @activity = @discussion.items if @discussion.items.present?
+    render :layout => "print"
   end
 
   private

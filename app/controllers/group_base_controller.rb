@@ -1,6 +1,13 @@
 class GroupBaseController < BaseController
 
   protected
+  def track_visit
+    if user_signed_in?
+      ahoy.track_visit
+      GroupVisitService.record(visit: current_visit, group: @group)
+      OrganisationVisitService.record(visit: current_visit, organisation: @group.parent_or_self)
+    end
+  end
 
   def build_discussion_index_caches
     @current_motion_ids = @discussions.map(&:current_motion).compact.map(&:id)
@@ -19,6 +26,13 @@ class GroupBaseController < BaseController
 
     @last_vote_cache = VoteCache.new(current_user, @last_votes)
   end
+
+  def clear_discussion_index_caches
+    @last_vote_cache.clear
+    @motion_reader_cache.clear
+    @discussion_reader_cache.clear
+  end
+
 
   def require_current_user_can_invite_people
     unless can? :invite_people, @group

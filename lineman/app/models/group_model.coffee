@@ -10,10 +10,10 @@ angular.module('loomioApp').factory 'GroupModel', (BaseModel) ->
     discussions: ->
       @discussionsView.data()
 
-    organizationDiscussions: ->
-      @recordStore.discussions.find(groupId: { $in: @organizationIds()})
+    organisationDiscussions: ->
+      @recordStore.discussions.find(groupId: { $in: @organisationIds()})
 
-    organizationIds: ->
+    organisationIds: ->
       _.pluck(@subgroups(), 'id').concat(@id)
 
     subgroups: ->
@@ -61,14 +61,8 @@ angular.module('loomioApp').factory 'GroupModel', (BaseModel) ->
       @parent().visibleToPublic() if @parentId?
 
     visibleToPublic: ->       @visibleTo == 'public'
-    visibleToOrganization: -> @visibleTo == 'parent_members'
+    visibleToorganisation: -> @visibleTo == 'parent_members'
     visibleToMembers: ->      @visibleTo == 'members'
-
-    userDefinedLogo: ->
-      !_.contains(@logoUrlMedium, 'default-logo')
-
-    userDefinedCover: ->
-      !_.contains(@coverUrlDesktop, 'default-cover')
 
     isSubgroup: ->
       @parentId?
@@ -77,16 +71,20 @@ angular.module('loomioApp').factory 'GroupModel', (BaseModel) ->
       !@parentId?
 
     logoUrl: ->
-      if @isSubgroup() && !@userDefinedLogo()
-        @parent().logoUrlMedium
-      else
+      if @logoUrlMedium
         @logoUrlMedium
+      else if @isSubgroup()
+        @parent().logoUrl()
+      else
+        '/img/default-logo-medium.png'
 
     coverUrl: ->
-      if @isSubgroup() && !@userDefinedCover()
-        @parent().coverUrlDesktop
-      else
+      if @coverUrlDesktop
         @coverUrlDesktop
+      else if @isSubgroup()
+        @parent().coverUrl()
+      else
+        '/img/default-cover-photo.png'
 
     archive: ->
       @restfulClient.postMember(group.key, 'archive')

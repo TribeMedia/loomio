@@ -27,8 +27,7 @@ namespace :loomio do
 
     Comment.find_each do |c|
       progress_bar.increment
-      c.refresh_liker_ids_and_names
-      c.save
+      c.refresh_liker_ids_and_names!
     end
   end
 
@@ -43,5 +42,14 @@ namespace :loomio do
       next unless dr.user.present?
       dr.reset_counts!
     end
+  end
+
+  task tag_cohorts: :environment do
+    CohortService.tag_groups
+    puts "Tagged all groups into cohorts"
+  end
+
+  task measure_groups: :environment do
+    MeasurementService.measure_groups(Time.zone.yesterday)
   end
 end

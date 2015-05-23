@@ -1,10 +1,10 @@
-%section.group-page-threads{role: 'region', aria-labelledby: 'threads-card-title'}
-  .group-page-new-thread
-    %a.btn.btn-success.btn-icon{href: '#', ng_click: 'openDiscussionForm()', title: "{{ 'navbar.start_thread' | translate }}"}
+%section.group-page__threads{aria-labelledby: 'threads-card-title'}
+  .group-page__new-thread
+    %a.btn.btn-success.lmo-btn-icon{href: '#', ng_click: 'openDiscussionForm()', title: "{{ 'navbar.start_thread' | translate }}"}
       %i.fa.fa-plus{aria-hidden: 'true'}>
       %span{translate: 'navbar.start_thread'}
 
-  #threads-card-title.card-title{ translate: 'group_page.discussions', role: 'heading' }
+  %h2#threads-card-title.lmo-card-heading{ translate: 'group_page.discussions'}
   .group-thread-list
     .group-thread-list-empty{ng-if: '!loadMoreExecuting && group.organizationDiscussions().length == 0'}
       .group-thread-list-empty-reason{translate: 'group_page.thread_list.empty.{{whyImEmpty()}}'}
@@ -15,7 +15,7 @@
         .group-thread-list-members-invite{ng-if: 'group.membersCanInviteMembers', translate: 'group_page.thread_list.empty.membership_is_invitation_only'}
         .group-thread-list-admins-invite{ng-if: '!group.membersCanInviteMembers', translate: 'group_page.thread_list.empty.membership_is_invitation_by_admin_only'}
 
-    .group-thread-list-item{ng-repeat: 'discussion in group.organizationDiscussions() | orderBy: ["-lastActivityAt"] | limitTo:loaded'}
+    .group-thread-list-item{ng-repeat: 'discussion in group.organisationDiscussions() | orderBy: ["-lastActivityAt"] | limitTo:loaded'}
       .time-and-icon.pull-right
         %smart_time.group-thread-list-time{time: 'discussion.lastActivityAt' }>
         %span.group-thread-list-icon

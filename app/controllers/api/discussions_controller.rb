@@ -2,19 +2,8 @@ class API::DiscussionsController < API::RestfulController
   load_and_authorize_resource only: [:show, :mark_as_read, :set_volume]
   load_resource only: [:create, :update]
 
-  def inbox_by_date
-    load_and_authorize_group if params[:group_id]
-    @discussions = page_collection inbox_threads
-    respond_with_discussions
-  end
-
-  def inbox_by_organization
-    @discussions = grouped inbox_threads.group_by(&:organization_id)
-    respond_with_discussions
-  end
-
-  def inbox_by_group
-    @discussions = grouped inbox_threads.group_by(&:group_id)
+  def dashboard
+    instantiate_collection { |collection| filter_collection collection }
     respond_with_discussions
   end
 
@@ -45,37 +34,21 @@ class API::DiscussionsController < API::RestfulController
            root: 'discussion_wrappers'
   end
 
-  def discussion_params
-    params.require(:discussion).permit([:title,
-                                        :description,
-                                        :uses_markdown,
-                                        :group_id,
-                                        :private,
-                                        :iframe_src])
-  end
-
   def visible_records
-    load_and_authorize_group
-    if @group
-      GroupDiscussionsViewer.for(user: current_user, group: @group)
-    else
-      Queries::VisibleDiscussions.new(user: current_user)
-    end.order(last_activity_at: :desc)
+    Queries::VisibleDiscussions.new(user: current_user, groups: current_user.groups).sorted_by_latest_activity
   end
 
   private
 
-  def inbox_threads
-    GroupDiscussionsViewer.for(user: current_user, group: @group, filter: params[:filter])
-                          .not_muted
-                          .where('last_activity_at > ?', params[:from_date] || 3.months.ago)
-                          .joined_to_current_motion
-                          .preload(:current_motion, {group: :parent})
-                          .order('motions.closing_at ASC, last_activity_at DESC')
-  end
-
-  def grouped(discussions)
-    discussions.map { |g, discussions| discussions.first(Integer(params[:per] || 5)) }.flatten
+  def filter_collection(collection, filter = params[:filter])
+    case filter
+    when 'show_proposals'     then collection.not_muted.with_active_motions
+    when 'show_participating' then collection.not_muted.participating
+    when 'show_starred'       then collection.not_muted.starred
+    when 'show_muted'         then collection.muted
+    when 'show_unread'        then collection.not_muted.unread
+    else                           collection.not_muted
+    end
   end
 
   def discussion_reader
