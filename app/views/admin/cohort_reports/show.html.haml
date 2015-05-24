@@ -1,0 +1,15 @@
+%h1 Cohort #{@cohort.id} report
+
+%table
+  %thead
+    %tr
+      %th Cohort
+      - @dates.each do |date|
+        %th=date
+
+  %tbody
+    %tr
+      - @cohorts.each do |cohort|
+        %td=cohort.id
+        - cohort_averages(cohort_id: cohort.id, column: 'group_visits_count').each do |row|
+          %td=row[:avg]

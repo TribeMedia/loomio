@@ -1,0 +1,12 @@
+%h1 Group measurements for: #{@group.full_name}
+
+%table
+  %thead
+    - GroupMeasurement.column_names.each do |col|
+      %th=col
+
+  %tbody
+    - @measurements.each do |m|
+      %tr
+        - GroupMeasurement.column_names.each do |col|
+          %td=m.send col
