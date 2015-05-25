@@ -44,9 +44,9 @@ describe MeasurementService do
       measurement.likes_count.should == 1
       measurement.subgroups_count.should == 1
       measurement.group_visits_count.should == 2
-      measurement.member_group_visits_count.should == 1
+      measurement.group_member_visits_count.should == 1
       measurement.organisation_visits_count.should == 2
-      measurement.member_organisation_visits_count.should == 1
+      measurement.organisation_member_visits_count.should == 1
     end
   end
 end

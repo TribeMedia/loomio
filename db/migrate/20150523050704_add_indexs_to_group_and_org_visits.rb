@@ -11,6 +11,8 @@ class AddIndexsToGroupAndOrgVisits < ActiveRecord::Migration
     add_index  :organisation_visits, :organisation_id
     add_index  :organisation_visits, :member
 
+    rename_column :group_measurements, :member_organisation_visits_count, :organisation_member_visits_count
+    rename_column :group_measurements, :member_group_visits_count, :group_member_visits_count
 
     # fix the old data up
     queries = ['update group_visits set user_id = visits.user_id from visits where visits.id = group_visits.visit_id',
@@ -24,12 +26,5 @@ class AddIndexsToGroupAndOrgVisits < ActiveRecord::Migration
 
     ActiveRecord::Base.connection.execute "TRUNCATE TABLE group_measurements"
     add_column :group_measurements, :age, :integer, null: false
-
-    #update_age_query = 'UPDATE group_measurements gm
-                           #SET gm.age = (gm.period_end_on - g.created_at::date)
-                          #FROM groups g WHERE gm.group_id = g.id'
-    #ActiveRecord::Base.connection.execute update_age_query
-
-    #change_column :group_measurements, :age, :integer, null: false
   end
 end

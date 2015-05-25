@@ -287,9 +287,9 @@ ActiveRecord::Schema.define(version: 20150523050704) do
     t.integer "comments_count"
     t.integer "likes_count"
     t.integer "group_visits_count"
-    t.integer "member_group_visits_count"
+    t.integer "group_member_visits_count"
     t.integer "organisation_visits_count"
-    t.integer "member_organisation_visits_count"
+    t.integer "organisation_member_visits_count"
     t.integer "age",                              null: false
   end
 

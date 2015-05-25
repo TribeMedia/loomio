@@ -26,9 +26,8 @@ Loomio::Application.routes.draw do
       get :retention
       get :events
       get :weekly_activity
+      get :cohorts
     end
-
-    resources :cohort_reports, only: :show
     #get :test
     #resources :groups, only: :show
     #get 'group/:id'
