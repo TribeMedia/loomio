@@ -36,6 +36,14 @@ window.useFactory = function() {
       avatar_kind: 'initials'
     },
 
+    groups: {
+      key: 'fedcba',
+      name: 'Venus: ...Ladies.',
+      description: '',
+      created_at: moment().subtract(2, 'day'),
+      updated_at: moment().subtract(2, 'day')
+    },
+
     discussions: {
       key: 'abcdef',
       title: 'Earth: The Most Recent Frontier',
